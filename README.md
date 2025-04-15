@@ -33,7 +33,7 @@ Additionally, I extended the study by conducting a parallel analysis using the 2
 
 ### Key Findings
 
-- Myreplication showed that the results from the original 2009 Lutfiyya et al. paper were largely reproducible using the same BRFSS dataset and methods.
+- My replication showed that the results from the original 2009 Lutfiyya et al. paper were largely reproducible using the same BRFSS dataset and methods.
 - However, when I repeated the analysis using 2019 BRFSS data to examine changes after 10 years, we found that rural U.S. adults continued to experience disparities in diabetes care—and, in some cases, these disparities had worsened.
 - Specifically, the odds of rural adults receiving less than adequate diabetes care were higher in 2019 compared to 2009.
 - Older adults in rural areas had higher odds of deferring medical care due to cost and of not having a healthcare provider. Notably, the odds of not having a healthcare provider were significantly higher in 2019 than in 2009.
