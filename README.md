@@ -25,8 +25,8 @@ Additionally, I extended the study by conducting a parallel analysis using the 2
   - `brfss_analysis_2009.do`: STATA code for replicating the 2009 study
   -  `brfss_analysis_2019.do`: STATA code for additional 2019 analysis
 - `output/`
-  - `brfss_analysis_2009.txt`: Log file with output from 2009 analysis
-  - `brfss_analysis_2019.txt`: Log file with output from 2019 analysis
+  - `brfss_analysis_2009.log`: Log file with output from 2009 analysis
+  - `brfss_analysis_2019.log`: Log file with output from 2019 analysis
 - `README.md`: Project overview and documentation
 
 ---
