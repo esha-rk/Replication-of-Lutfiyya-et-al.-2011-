@@ -1,0 +1,1914 @@
+-----------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\eshak\OneDrive\Documents\23 Fall\Large Scale Data\finalproject2019.log
+  log type:  text
+ opened on:   6 Dec 2023, 16:31:57
+
+. 
+. /*----------------------------------
+> Replicate Lutfiyya et al. (2011) using 2019 BRFSS
+> -----------------------------------*/
+. 
+. **************************************
+. ** Bring in BRFSS data            
+. **************************************
+. import sasxport5 LLCP2019.XPT
+
+. 
+. *************************************
+. ** Apply survey weight
+. *************************************
+. svyset _psu [pweight=_llcpwt], strata(_ststr) singleunit(centered)
+
+Sampling weights: _llcpwt
+             VCE: linearized
+     Single unit: centered
+        Strata 1: _ststr
+ Sampling unit 1: _psu
+           FPC 1: <zero>
+
+. 
+. **************************************
+. ** Clean and create key variables            
+. **************************************
+. *keep variables for population of interest
+. keep if _age65yr==2
+(265,844 observations deleted)
+
+. tab diabete4, missing
+
+(EVER TOLD) |
+    YOU HAD |
+   DIABETES |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |     32,529       21.34       21.34
+          2 |        623        0.41       21.75
+          3 |    114,659       75.22       96.97
+          4 |      4,335        2.84       99.82
+          7 |        226        0.15       99.97
+          9 |         52        0.03      100.00
+------------+-----------------------------------
+      Total |    152,424      100.00
+
+. keep if diabete4==1
+(119,895 observations deleted)
+
+. *create binary variable for rural and non-rural
+. tab mscode, missing
+
+METROPOLITA |
+   N STATUS |
+       CODE |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      5,562       17.10       17.10
+          2 |      3,107        9.55       26.65
+          3 |      3,298       10.14       36.79
+          5 |      6,486       19.94       56.73
+          . |     14,076       43.27      100.00
+------------+-----------------------------------
+      Total |     32,529      100.00
+
+. drop if mscode==.
+(14,076 observations deleted)
+
+. gen rural = mscode==4 | mscode==5
+
+. tab rural
+
+      rural |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |     11,967       64.85       64.85
+          1 |      6,486       35.15      100.00
+------------+-----------------------------------
+      Total |     18,453      100.00
+
+. *cleaning glucose test var
+. tab bldsugar, missing
+
+  HOW OFTEN |
+CHECK BLOOD |
+FOR GLUCOSE |      Freq.     Percent        Cum.
+------------+-----------------------------------
+        101 |      2,629       14.25       14.25
+        102 |      1,277        6.92       21.17
+        103 |        629        3.41       24.58
+        104 |        363        1.97       26.54
+        105 |         73        0.40       26.94
+        106 |         34        0.18       27.12
+        107 |         16        0.09       27.21
+        108 |         17        0.09       27.30
+        109 |          2        0.01       27.31
+        110 |          6        0.03       27.35
+        112 |          2        0.01       27.36
+        114 |          2        0.01       27.37
+        120 |          1        0.01       27.37
+        121 |          1        0.01       27.38
+        123 |          1        0.01       27.38
+        130 |          2        0.01       27.39
+        140 |          1        0.01       27.40
+        150 |          1        0.01       27.40
+        198 |         18        0.10       27.50
+        199 |          6        0.03       27.53
+        201 |        534        2.89       30.43
+        202 |        337        1.83       32.25
+        203 |        377        2.04       34.30
+        204 |        127        0.69       34.99
+        205 |         43        0.23       35.22
+        206 |         16        0.09       35.31
+        207 |         46        0.25       35.56
+        208 |          1        0.01       35.56
+        210 |          4        0.02       35.58
+        211 |          1        0.01       35.59
+        214 |          1        0.01       35.59
+        215 |          4        0.02       35.61
+        218 |          1        0.01       35.62
+        221 |          1        0.01       35.63
+        228 |          1        0.01       35.63
+        301 |        296        1.60       37.24
+        302 |        111        0.60       37.84
+        303 |         43        0.23       38.07
+        304 |         26        0.14       38.21
+        305 |          9        0.05       38.26
+        306 |          4        0.02       38.28
+        307 |          1        0.01       38.29
+        308 |          3        0.02       38.30
+        310 |          8        0.04       38.35
+        312 |          2        0.01       38.36
+        315 |         26        0.14       38.50
+        316 |          1        0.01       38.50
+        320 |          2        0.01       38.51
+        329 |          1        0.01       38.52
+        330 |         13        0.07       38.59
+        398 |          1        0.01       38.60
+        399 |          1        0.01       38.60
+        401 |         70        0.38       38.98
+        402 |        199        1.08       40.06
+        403 |         61        0.33       40.39
+        404 |        164        0.89       41.28
+        405 |         10        0.05       41.33
+        406 |         20        0.11       41.44
+        407 |          2        0.01       41.45
+        408 |          1        0.01       41.46
+        409 |          1        0.01       41.46
+        410 |          3        0.02       41.48
+        412 |          4        0.02       41.50
+        415 |          1        0.01       41.51
+        420 |          1        0.01       41.51
+        430 |          1        0.01       41.52
+        440 |          1        0.01       41.52
+        444 |          1        0.01       41.53
+        460 |          1        0.01       41.53
+        490 |          1        0.01       41.54
+        499 |          1        0.01       41.54
+        777 |        190        1.03       42.57
+        888 |        939        5.09       47.66
+        999 |         24        0.13       47.79
+          . |      9,634       52.21      100.00
+------------+-----------------------------------
+      Total |     18,453      100.00
+
+. drop if bldsugar==777 | bldsugar==999 | bldsugar==.
+(9,848 observations deleted)
+
+. gen glucosetest = bldsugar
+
+. replace glucosetest = 1 if bldsugar<888
+(7,666 real changes made)
+
+. replace glucosetest = 0 if bldsugar==888
+(939 real changes made)
+
+. tab glucosetest, missing
+
+glucosetest |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        939       10.91       10.91
+          1 |      7,666       89.09      100.00
+------------+-----------------------------------
+      Total |      8,605      100.00
+
+. *cleaning self foot check var
+. tab feetchk3, missing
+
+  HOW OFTEN |
+ CHECK FEET |
+  FOR SORES |
+  OR IRRITA |      Freq.     Percent        Cum.
+------------+-----------------------------------
+        101 |      4,098       47.62       47.62
+        102 |        263        3.06       50.68
+        103 |         46        0.53       51.21
+        104 |         22        0.26       51.47
+        105 |         10        0.12       51.59
+        106 |          3        0.03       51.62
+        107 |         17        0.20       51.82
+        110 |          2        0.02       51.84
+        114 |          1        0.01       51.85
+        120 |          1        0.01       51.87
+        123 |          1        0.01       51.88
+        130 |          9        0.10       51.98
+        199 |         13        0.15       52.13
+        201 |        730        8.48       60.62
+        202 |        290        3.37       63.99
+        203 |        262        3.04       67.03
+        204 |        118        1.37       68.40
+        205 |         55        0.64       69.04
+        206 |          8        0.09       69.13
+        207 |        106        1.23       70.37
+        208 |          1        0.01       70.38
+        210 |          1        0.01       70.39
+        212 |          1        0.01       70.40
+        301 |        341        3.96       74.36
+        302 |        101        1.17       75.54
+        303 |         33        0.38       75.92
+        304 |         21        0.24       76.17
+        305 |          1        0.01       76.18
+        306 |          3        0.03       76.21
+        308 |          1        0.01       76.22
+        310 |          5        0.06       76.28
+        315 |         17        0.20       76.48
+        316 |          1        0.01       76.49
+        325 |          2        0.02       76.51
+        330 |         32        0.37       76.89
+        331 |          1        0.01       76.90
+        365 |          1        0.01       76.91
+        399 |          2        0.02       76.93
+        401 |         76        0.88       77.82
+        402 |         93        1.08       78.90
+        403 |         47        0.55       79.44
+        404 |        137        1.59       81.03
+        405 |         16        0.19       81.22
+        406 |         43        0.50       81.72
+        407 |          1        0.01       81.73
+        408 |          4        0.05       81.78
+        410 |          5        0.06       81.84
+        412 |          6        0.07       81.91
+        420 |          1        0.01       81.92
+        430 |          2        0.02       81.94
+        440 |          1        0.01       81.95
+        452 |          1        0.01       81.96
+        499 |          4        0.05       82.01
+        555 |         49        0.57       82.58
+        777 |        290        3.37       85.95
+        888 |      1,181       13.72       99.67
+        999 |         28        0.33      100.00
+------------+-----------------------------------
+      Total |      8,605      100.00
+
+. drop if feetchk3==999 | feetchk3==777 | feetchk3==555 | feetchk3==.
+(367 observations deleted)
+
+. gen footcheck = feetchk3
+
+. replace footcheck=1 if feetchk3<555
+(7,057 real changes made)
+
+. replace footcheck=0 if feetchk3==888
+(1,181 real changes made)
+
+. tab footcheck, missing
+
+  footcheck |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,181       14.34       14.34
+          1 |      7,057       85.66      100.00
+------------+-----------------------------------
+      Total |      8,238      100.00
+
+. *creating and cleaning blood pressure var
+. gen controlledbp = .
+(8,238 missing values generated)
+
+. tab _rfhype5, missing
+
+ HIGH BLOOD |
+   PRESSURE |
+ CALCULATED |
+   VARIABLE |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      1,596       19.37       19.37
+          2 |      6,613       80.27       99.65
+          9 |         29        0.35      100.00
+------------+-----------------------------------
+      Total |      8,238      100.00
+
+. drop if _rfhype5==9
+(29 observations deleted)
+
+. tab bpmeds, missing
+
+  CURRENTLY |
+     TAKING |
+      BLOOD |
+   PRESSURE |
+   MEDICATI |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      6,316       76.94       76.94
+          2 |        281        3.42       80.36
+          7 |         13        0.16       80.52
+          9 |          3        0.04       80.56
+          . |      1,596       19.44      100.00
+------------+-----------------------------------
+      Total |      8,209      100.00
+
+. drop if bpmeds==9 | bpmeds==7 | bpmeds==.
+(1,612 observations deleted)
+
+. replace controlledbp = 1 if [_rfhype5==2 & bpmeds==1] | _rfhype5==1
+(6,316 real changes made)
+
+. replace controlledbp = 0 if _rfhype5==2 & bpmeds==2
+(281 real changes made)
+
+. tab controlledbp, missing
+
+controlledb |
+          p |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        281        4.26        4.26
+          1 |      6,316       95.74      100.00
+------------+-----------------------------------
+      Total |      6,597      100.00
+
+. *cleaning cholesterol check var
+. tab cholchk, missing
+
+   HOW LONG |
+      SINCE |
+CHOLESTEROL |
+    CHECKED |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |         46        0.70        0.70
+          2 |      6,229       94.42       95.12
+          3 |        136        2.06       97.18
+          4 |         18        0.27       97.45
+          5 |          5        0.08       97.53
+          6 |          4        0.06       97.59
+          7 |        148        2.24       99.83
+          8 |         10        0.15       99.98
+          9 |          1        0.02      100.00
+------------+-----------------------------------
+      Total |      6,597      100.00
+
+. drop if cholchk==7 | cholchk==9 | cholchk==.
+(149 observations deleted)
+
+. gen cholesterol=.
+(6,448 missing values generated)
+
+. replace cholesterol = 1 if cholchk==2
+(6,229 real changes made)
+
+. replace cholesterol = 0 if cholchk>2 | cholchk==1
+(219 real changes made)
+
+. tab cholesterol, missing
+
+cholesterol |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        219        3.40        3.40
+          1 |      6,229       96.60      100.00
+------------+-----------------------------------
+      Total |      6,448      100.00
+
+. *cleaning flu shot var
+. tab _flshot7, missing
+
+   FLU SHOT |
+ CALCULATED |
+   VARIABLE |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      4,429       68.69       68.69
+          2 |      1,642       25.47       94.15
+          9 |        377        5.85      100.00
+------------+-----------------------------------
+      Total |      6,448      100.00
+
+. keep if _flshot7==1 | _flshot7==2
+(377 observations deleted)
+
+. gen flushot = .
+(6,071 missing values generated)
+
+. replace flushot = 1 if _flshot7==1
+(4,429 real changes made)
+
+. replace flushot = 0 if _flshot7>1
+(1,642 real changes made)
+
+. tab flushot, missing
+
+    flushot |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,642       27.05       27.05
+          1 |      4,429       72.95      100.00
+------------+-----------------------------------
+      Total |      6,071      100.00
+
+. *cleaning pneumonia vax var
+. tab pneuvac4, missing
+
+  PNEUMONIA |
+  SHOT EVER |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      4,981       82.05       82.05
+          2 |        931       15.34       97.38
+          7 |        140        2.31       99.69
+          . |         19        0.31      100.00
+------------+-----------------------------------
+      Total |      6,071      100.00
+
+. drop if pneuvac4==7 | pneuvac4==9 | pneuvac4==.
+(159 observations deleted)
+
+. gen pneumonia=.
+(5,912 missing values generated)
+
+. replace pneumonia = 1 if pneuvac4==1
+(4,981 real changes made)
+
+. replace pneumonia = 0 if pneuvac4==2
+(931 real changes made)
+
+. tab pneumonia, missing
+
+  pneumonia |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        931       15.75       15.75
+          1 |      4,981       84.25      100.00
+------------+-----------------------------------
+      Total |      5,912      100.00
+
+. *cleaning diabetes checks var
+. tab doctdiab, missing
+
+ TIMES SEEN |
+     HEALTH |
+PROFESSIONA |
+L FOR DIABE |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |        810       13.70       13.70
+          2 |      1,422       24.05       37.75
+          3 |        759       12.84       50.59
+          4 |      1,590       26.89       77.49
+          5 |         91        1.54       79.03
+          6 |        163        2.76       81.78
+          7 |         20        0.34       82.12
+          8 |         36        0.61       82.73
+          9 |         10        0.17       82.90
+         10 |         24        0.41       83.31
+         11 |          1        0.02       83.32
+         12 |        181        3.06       86.38
+         13 |          3        0.05       86.43
+         15 |          4        0.07       86.50
+         16 |          4        0.07       86.57
+         17 |          1        0.02       86.59
+         18 |          3        0.05       86.64
+         20 |          4        0.07       86.71
+         21 |          1        0.02       86.72
+         22 |          1        0.02       86.74
+         24 |          8        0.14       86.87
+         30 |         10        0.17       87.04
+         32 |          1        0.02       87.06
+         35 |          1        0.02       87.08
+         40 |          3        0.05       87.13
+         48 |          1        0.02       87.14
+         50 |          2        0.03       87.18
+         52 |          2        0.03       87.21
+         76 |          5        0.08       87.30
+         77 |        180        3.04       90.34
+         88 |        555        9.39       99.73
+         99 |         16        0.27      100.00
+------------+-----------------------------------
+      Total |      5,912      100.00
+
+. drop if doctdiab==77 | doctdiab==99 | doctdiab==.
+(196 observations deleted)
+
+. gen diacheck = .
+(5,716 missing values generated)
+
+. replace diacheck = 1 if doctdiab>=2
+(4,906 real changes made)
+
+. replace diacheck = 0 if doctdiab==88 | doctdiab==1
+(1,365 real changes made)
+
+. tab diacheck, missing
+
+   diacheck |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,365       23.88       23.88
+          1 |      4,351       76.12      100.00
+------------+-----------------------------------
+      Total |      5,716      100.00
+
+. *cleaning a one c checks var 
+. tab chkhemo3, missing
+
+      TIMES |
+CHECKED FOR |
+GLYCOSYLATE |
+D HEMOGLOBI |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |        899       15.73       15.73
+          2 |      1,734       30.34       46.06
+          3 |        777       13.59       59.66
+          4 |      1,506       26.35       86.00
+          5 |         51        0.89       86.90
+          6 |         93        1.63       88.52
+          7 |         11        0.19       88.72
+          8 |         18        0.31       89.03
+          9 |          7        0.12       89.15
+         10 |          9        0.16       89.31
+         12 |         77        1.35       90.66
+         16 |          2        0.03       90.69
+         20 |          3        0.05       90.75
+         21 |          1        0.02       90.76
+         24 |          5        0.09       90.85
+         25 |          2        0.03       90.89
+         30 |          3        0.05       90.94
+         48 |          2        0.03       90.97
+         52 |          1        0.02       90.99
+         60 |          1        0.02       91.01
+         76 |          2        0.03       91.04
+         77 |        221        3.87       94.91
+         88 |        198        3.46       98.37
+         98 |         84        1.47       99.84
+         99 |          9        0.16      100.00
+------------+-----------------------------------
+      Total |      5,716      100.00
+
+. drop if chkhemo3>=98
+(93 observations deleted)
+
+. gen a1c = .
+(5,623 missing values generated)
+
+. replace a1c = 1 if chkhemo3>=2
+(4,724 real changes made)
+
+. replace a1c = 0 if chkhemo3==88 | chkhemo3==1
+(1,097 real changes made)
+
+. tab a1c, missing
+
+        a1c |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,097       19.51       19.51
+          1 |      4,526       80.49      100.00
+------------+-----------------------------------
+      Total |      5,623      100.00
+
+. *cleaning feet check by healthcare prof var
+. tab feetchk, missing
+
+ TIMES FEET |
+  CHECK FOR |
+SORES/IRRIT |
+     ATIONS |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      1,229       21.86       21.86
+          2 |      1,202       21.38       43.23
+          3 |        495        8.80       52.04
+          4 |      1,095       19.47       71.51
+          5 |         73        1.30       72.81
+          6 |        219        3.89       76.70
+          7 |         14        0.25       76.95
+          8 |         33        0.59       77.54
+          9 |          8        0.14       77.68
+         10 |         17        0.30       77.98
+         11 |          2        0.04       78.02
+         12 |        115        2.05       80.06
+         13 |          1        0.02       80.08
+         14 |          3        0.05       80.14
+         15 |          2        0.04       80.17
+         16 |          5        0.09       80.26
+         20 |          8        0.14       80.40
+         21 |          1        0.02       80.42
+         23 |          2        0.04       80.46
+         24 |         10        0.18       80.63
+         25 |          4        0.07       80.70
+         26 |          1        0.02       80.72
+         30 |          3        0.05       80.78
+         32 |          1        0.02       80.79
+         35 |          1        0.02       80.81
+         36 |          1        0.02       80.83
+         48 |          2        0.04       80.86
+         50 |          1        0.02       80.88
+         52 |         12        0.21       81.10
+         60 |          1        0.02       81.11
+         76 |          6        0.11       81.22
+         77 |        103        1.83       83.05
+         88 |        949       16.88       99.93
+         99 |          4        0.07      100.00
+------------+-----------------------------------
+      Total |      5,623      100.00
+
+. drop if feetchk==77 | feetchk==99 | feetchk==.
+(107 observations deleted)
+
+. gen footcheck_d = .
+(5,516 missing values generated)
+
+. replace footcheck_d = 1 if feetchk>=2
+(4,287 real changes made)
+
+. replace footcheck_d = 0 if feetchk==88 | feetchk==1
+(2,178 real changes made)
+
+. tab footcheck_d, missing
+
+footcheck_d |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,178       39.49       39.49
+          1 |      3,338       60.51      100.00
+------------+-----------------------------------
+      Total |      5,516      100.00
+
+. *cleaning eye exam var
+. tab eyeexam1, missing
+
+   LAST EYE |
+ EXAM WHERE |
+PUPILS WERE |
+    DILATED |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      1,255       22.75       22.75
+          2 |      3,176       57.58       80.33
+          3 |        602       10.91       91.24
+          4 |        365        6.62       97.86
+          7 |         47        0.85       98.71
+          8 |         67        1.21       99.93
+          9 |          3        0.05       99.98
+          . |          1        0.02      100.00
+------------+-----------------------------------
+      Total |      5,516      100.00
+
+. drop if eyeexam1==7 | eyeexam1==9| eyeexam1==.
+(51 observations deleted)
+
+. gen eyecheck = .
+(5,465 missing values generated)
+
+. replace eyecheck = 1 if eyeexam1==1 | eyeexam1==2
+(4,431 real changes made)
+
+. replace eyecheck = 0 if eyeexam1==3 | eyeexam1==4 | eyeexam1==8
+(1,034 real changes made)
+
+. tab eyecheck, missing
+
+   eyecheck |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,034       18.92       18.92
+          1 |      4,431       81.08      100.00
+------------+-----------------------------------
+      Total |      5,465      100.00
+
+. *cleaning diabetes education var
+. tab diabedu, missing
+
+ EVER TAKEN |
+   CLASS IN |
+   MANAGING |
+   DIABETES |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      3,101       56.74       56.74
+          2 |      2,350       43.00       99.74
+          7 |         12        0.22       99.96
+          9 |          2        0.04      100.00
+------------+-----------------------------------
+      Total |      5,465      100.00
+
+. drop if diabedu==7 | diabedu==9 | diabedu==.
+(14 observations deleted)
+
+. gen dia_eduction = .
+(5,451 missing values generated)
+
+. replace dia_eduction = 1 if diabedu==1
+(3,101 real changes made)
+
+. replace dia_eduction = 0 if diabedu==2
+(2,350 real changes made)
+
+. tab dia_eduction, missing
+
+dia_eductio |
+          n |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,350       43.11       43.11
+          1 |      3,101       56.89      100.00
+------------+-----------------------------------
+      Total |      5,451      100.00
+
+. *gen variable for optimal care
+. egen carescore = rowtotal(glucosetest footcheck controlledbp cholesterol flushot pneumonia a1c diacheck f
+> ootcheck_d eyecheck dia_eduction)
+
+. gen adequatecare = .
+(5,451 missing values generated)
+
+. replace adequatecare = 0 if carescore>8
+(3,474 real changes made)
+
+. replace adequatecare = 1 if carescore<=8
+(1,977 real changes made)
+
+. tab adequatecare, missing
+
+adequatecar |
+          e |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      3,474       63.73       63.73
+          1 |      1,977       36.27      100.00
+------------+-----------------------------------
+      Total |      5,451      100.00
+
+. *create race/ethnicity var
+. tab _imprace, missing
+
+    IMPUTED |
+RACE/ETHNIC |
+  ITY VALUE |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      4,329       79.42       79.42
+          2 |        750       13.76       93.18
+          3 |         24        0.44       93.62
+          4 |         82        1.50       95.12
+          5 |        142        2.61       97.73
+          6 |        124        2.27      100.00
+------------+-----------------------------------
+      Total |      5,451      100.00
+
+. gen race_eth = .
+(5,451 missing values generated)
+
+. replace race_eth = 0 if _imprace==1 //white
+(4,329 real changes made)
+
+. replace race_eth = 1 if _imprace==2 //black
+(750 real changes made)
+
+. replace race_eth = 2 if _imprace==5 // hispanic
+(142 real changes made)
+
+. replace race_eth = 3 if _imprace==3 | _imprace==4 | _imprace==6 //other or multi
+(230 real changes made)
+
+. tab race_eth, missing
+
+   race_eth |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      4,329       79.42       79.42
+          1 |        750       13.76       93.18
+          2 |        142        2.61       95.78
+          3 |        230        4.22      100.00
+------------+-----------------------------------
+      Total |      5,451      100.00
+
+. *gen physical activity var
+. tab actin12_, missing
+
+  ESTIMATED |
+   ACTIVITY |
+  INTENSITY |
+FOR FIRST A |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |         74        1.36        1.36
+          1 |      1,042       19.12       20.47
+          2 |      2,090       38.34       58.81
+          . |      2,245       41.19      100.00
+------------+-----------------------------------
+      Total |      5,451      100.00
+
+. drop if actin12_==.
+(2,245 observations deleted)
+
+. gen physact = .
+(3,206 missing values generated)
+
+. replace physact = 0 if actin12_==1 | actin12_==2
+(3,132 real changes made)
+
+. replace physact = 1 if actin12_==0
+(74 real changes made)
+
+. tab physact, missing
+
+    physact |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      3,132       97.69       97.69
+          1 |         74        2.31      100.00
+------------+-----------------------------------
+      Total |      3,206      100.00
+
+. *clean education var
+. tab educa, missing
+
+  EDUCATION |
+      LEVEL |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |          1        0.03        0.03
+          2 |         55        1.72        1.75
+          3 |        124        3.87        5.61
+          4 |        871       27.17       32.78
+          5 |        943       29.41       62.20
+          6 |      1,209       37.71       99.91
+          9 |          3        0.09      100.00
+------------+-----------------------------------
+      Total |      3,206      100.00
+
+. drop if educa==9 | educa==.
+(3 observations deleted)
+
+. gen education = .
+(3,203 missing values generated)
+
+. replace education = 1 if educa==1 | educa==2 | educa==3
+(180 real changes made)
+
+. replace education = 2 if educa==4 | educa==5
+(1,814 real changes made)
+
+. replace education = 0 if educa==6
+(1,209 real changes made)
+
+. tab education, missing
+
+  education |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,209       37.75       37.75
+          1 |        180        5.62       43.37
+          2 |      1,814       56.63      100.00
+------------+-----------------------------------
+      Total |      3,203      100.00
+
+. *clean annual household income var
+. tab income2
+
+     INCOME |
+      LEVEL |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |         74        2.31        2.31
+          2 |        146        4.56        6.87
+          3 |        212        6.62       13.49
+          4 |        284        8.87       22.35
+          5 |        343       10.71       33.06
+          6 |        437       13.64       46.71
+          7 |        518       16.17       62.88
+          8 |        630       19.67       82.55
+         77 |        189        5.90       88.45
+         99 |        370       11.55      100.00
+------------+-----------------------------------
+      Total |      3,203      100.00
+
+. drop if income2==77 | income2==99 | income2==.
+(559 observations deleted)
+
+. gen income = .
+(2,644 missing values generated)
+
+. replace income = 0 if income2>=6
+(1,585 real changes made)
+
+. replace income = 1 if income2<6
+(1,059 real changes made)
+
+. tab income, missing
+
+     income |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,585       59.95       59.95
+          1 |      1,059       40.05      100.00
+------------+-----------------------------------
+      Total |      2,644      100.00
+
+. *clean marital status var
+. tab marital, missing
+
+    MARITAL |
+     STATUS |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      1,295       48.98       48.98
+          2 |        348       13.16       62.14
+          3 |        761       28.78       90.92
+          4 |         22        0.83       91.75
+          5 |        192        7.26       99.02
+          6 |         21        0.79       99.81
+          9 |          5        0.19      100.00
+------------+-----------------------------------
+      Total |      2,644      100.00
+
+. drop if marital==9 | marital==.
+(5 observations deleted)
+
+. gen marstatus = .
+(2,639 missing values generated)
+
+. replace marstatus = 0 if marital==1 | marital==4
+(1,317 real changes made)
+
+. replace marstatus = 1 if marital==2 | marital==3 | marital==5 | marital==6
+(1,322 real changes made)
+
+. tab marstatus, missing
+
+  marstatus |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,317       49.91       49.91
+          1 |      1,322       50.09      100.00
+------------+-----------------------------------
+      Total |      2,639      100.00
+
+. *clean self reported health status var
+. tab genhlth, missing
+
+    GENERAL |
+     HEALTH |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |         92        3.49        3.49
+          2 |        598       22.66       26.15
+          3 |      1,129       42.78       68.93
+          4 |        637       24.14       93.07
+          5 |        180        6.82       99.89
+          7 |          3        0.11      100.00
+------------+-----------------------------------
+      Total |      2,639      100.00
+
+. drop if genhlth==7 | genhlth==9 | genhlth==.
+(3 observations deleted)
+
+. gen srh = .
+(2,636 missing values generated)
+
+. replace srh = 1 if genhlth==4 | genhlth==5
+(817 real changes made)
+
+. replace srh = 0 if genhlth<=3
+(1,819 real changes made)
+
+. tab srh, missing
+
+        srh |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,819       69.01       69.01
+          1 |        817       30.99      100.00
+------------+-----------------------------------
+      Total |      2,636      100.00
+
+. *clean health care professional var
+. tab persdoc2, missing
+
+   MULTIPLE |
+HEALTH CARE |
+PROFESSIONA |
+         LS |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      2,305       87.44       87.44
+          2 |        271       10.28       97.72
+          3 |         52        1.97       99.70
+          7 |          7        0.27       99.96
+          9 |          1        0.04      100.00
+------------+-----------------------------------
+      Total |      2,636      100.00
+
+. drop if persdoc2==7 | persdoc2==9 | persdoc2==.
+(8 observations deleted)
+
+. gen provider = .
+(2,628 missing values generated)
+
+. replace provider = 0 if persdoc2==1 | persdoc2==2
+(2,576 real changes made)
+
+. replace provider = 1 if persdoc2==3
+(52 real changes made)
+
+. tab provider, missing
+
+   provider |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,576       98.02       98.02
+          1 |         52        1.98      100.00
+------------+-----------------------------------
+      Total |      2,628      100.00
+
+. *clean bmi var
+. tab _bmi5cat, missing
+
+   COMPUTED |
+  BODY MASS |
+      INDEX |
+ CATEGORIES |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |          9        0.34        0.34
+          2 |        366       13.93       14.27
+          3 |        946       36.00       50.27
+          4 |      1,235       46.99       97.26
+          . |         72        2.74      100.00
+------------+-----------------------------------
+      Total |      2,628      100.00
+
+. drop if _bmi5cat==9
+(0 observations deleted)
+
+. gen bmi = .
+(2,628 missing values generated)
+
+. replace bmi = 0 if _bmi5cat==1 |_bmi5cat==2
+(375 real changes made)
+
+. replace bmi = 1 if _bmi5cat==3
+(946 real changes made)
+
+. replace bmi = 2 if _bmi5cat==4
+(1,235 real changes made)
+
+. tab bmi, missing
+
+        bmi |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        375       14.27       14.27
+          1 |        946       36.00       50.27
+          2 |      1,235       46.99       97.26
+          . |         72        2.74      100.00
+------------+-----------------------------------
+      Total |      2,628      100.00
+
+. *clean smoking var
+. tab _rfsmok3, missing
+
+    CURRENT |
+    SMOKING |
+ CALCULATED |
+   VARIABLE |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      2,452       93.30       93.30
+          2 |        161        6.13       99.43
+          9 |         15        0.57      100.00
+------------+-----------------------------------
+      Total |      2,628      100.00
+
+. drop if _rfsmok3==9
+(15 observations deleted)
+
+. gen smoker = .
+(2,613 missing values generated)
+
+. replace smoker = 1 if _rfsmok3==2
+(161 real changes made)
+
+. replace smoker = 0 if _rfsmok3==1
+(2,452 real changes made)
+
+. tab smoker, missing
+
+     smoker |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,452       93.84       93.84
+          1 |        161        6.16      100.00
+------------+-----------------------------------
+      Total |      2,613      100.00
+
+. *clean routine checkup var
+. tab checkup1, missing
+
+  LENGTH OF |
+ TIME SINCE |
+       LAST |
+    ROUTINE |
+     CHECKU |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      2,555       97.78       97.78
+          2 |         42        1.61       99.39
+          3 |          7        0.27       99.66
+          4 |          2        0.08       99.73
+          7 |          4        0.15       99.89
+          8 |          3        0.11      100.00
+------------+-----------------------------------
+      Total |      2,613      100.00
+
+. drop if checkup1==7 | checkup1==9 | checkup1==8
+(7 observations deleted)
+
+. gen routine_checkup = .
+(2,606 missing values generated)
+
+. replace routine_checkup = 0 if checkup1==1
+(2,555 real changes made)
+
+. replace routine_checkup = 1 if checkup>1
+(51 real changes made)
+
+. tab routine_checkup, missing
+
+routine_che |
+       ckup |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,555       98.04       98.04
+          1 |         51        1.96      100.00
+------------+-----------------------------------
+      Total |      2,606      100.00
+
+. *clean insulin use var
+. tab insulin1, missing
+
+ NOW TAKING |
+    INSULIN |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |        749       28.74       28.74
+          2 |      1,850       70.99       99.73
+          7 |          7        0.27      100.00
+------------+-----------------------------------
+      Total |      2,606      100.00
+
+. drop if insulin1==9 | insulin1==. | insulin1==7
+(7 observations deleted)
+
+. gen insulin_use = .
+(2,599 missing values generated)
+
+. replace insulin_use = 1 if insulin1==1
+(749 real changes made)
+
+. replace insulin_use = 0 if insulin1==2
+(1,850 real changes made)
+
+. tab insulin_use, missing
+
+insulin_use |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      1,850       71.18       71.18
+          1 |        749       28.82      100.00
+------------+-----------------------------------
+      Total |      2,599      100.00
+
+. *clean affect eyes var
+. tab diabeye, missing
+
+  EVER TOLD |
+   DIABETES |
+        HAS |
+   AFFECTED |
+       EYES |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |        374       14.39       14.39
+          2 |      2,195       84.46       98.85
+          7 |         30        1.15      100.00
+------------+-----------------------------------
+      Total |      2,599      100.00
+
+. drop if diabeye==7 | diabeye==9 | diabeye==.
+(30 observations deleted)
+
+. gen affect_eyes = .
+(2,569 missing values generated)
+
+. replace affect_eyes = 1 if diabeye==1
+(374 real changes made)
+
+. replace affect_eyes = 0 if diabeye==2
+(2,195 real changes made)
+
+. tab affect_eyes, missing
+
+affect_eyes |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |      2,195       85.44       85.44
+          1 |        374       14.56      100.00
+------------+-----------------------------------
+      Total |      2,569      100.00
+
+. *clean sex var (only missing dropped)
+. tab sex, missing
+
+     SEX OF |
+ RESPONDENT |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      1,258       48.97       48.97
+          2 |      1,311       51.03      100.00
+------------+-----------------------------------
+      Total |      2,569      100.00
+
+. *clean insurance var (only missing dropped)
+. tab hlthpln1, missing
+
+   HAVE ANY |
+HEALTH CARE |
+   COVERAGE |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      2,546       99.10       99.10
+          2 |         21        0.82       99.92
+          9 |          2        0.08      100.00
+------------+-----------------------------------
+      Total |      2,569      100.00
+
+. drop if hlthpln1==7 | hlthpln1==9 | hlthpln1==.
+(2 observations deleted)
+
+. *clean deferment var (only missing dropped)
+. tab medcost, missing
+
+  COULD NOT |
+    SEE DR. |
+ BECAUSE OF |
+       COST |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |        104        4.05        4.05
+          2 |      2,460       95.83       99.88
+          7 |          2        0.08       99.96
+          9 |          1        0.04      100.00
+------------+-----------------------------------
+      Total |      2,567      100.00
+
+. drop if medcost==7 | medcost==9 | medcost==.
+(3 observations deleted)
+
+. *clean age of onset var
+. tab diabage3, missing
+
+   AGE WHEN |
+       TOLD |
+   DIABETES |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          3 |          1        0.04        0.04
+          4 |          1        0.04        0.08
+          5 |          1        0.04        0.12
+          6 |          2        0.08        0.20
+          7 |          1        0.04        0.23
+          8 |          1        0.04        0.27
+         10 |          3        0.12        0.39
+         14 |          1        0.04        0.43
+         15 |          5        0.20        0.62
+         16 |          2        0.08        0.70
+         17 |          2        0.08        0.78
+         18 |          3        0.12        0.90
+         19 |          4        0.16        1.05
+         20 |          5        0.20        1.25
+         21 |          4        0.16        1.40
+         22 |          2        0.08        1.48
+         23 |          2        0.08        1.56
+         24 |          2        0.08        1.64
+         25 |          8        0.31        1.95
+         26 |          2        0.08        2.03
+         27 |          2        0.08        2.11
+         28 |          4        0.16        2.26
+         29 |          2        0.08        2.34
+         30 |         26        1.01        3.35
+         31 |          3        0.12        3.47
+         32 |          5        0.20        3.67
+         33 |          4        0.16        3.82
+         34 |          8        0.31        4.13
+         35 |         32        1.25        5.38
+         36 |          7        0.27        5.66
+         37 |          4        0.16        5.81
+         38 |          6        0.23        6.05
+         39 |          7        0.27        6.32
+         40 |         94        3.67        9.98
+         41 |          6        0.23       10.22
+         42 |          9        0.35       10.57
+         43 |          9        0.35       10.92
+         44 |          8        0.31       11.23
+         45 |         87        3.39       14.63
+         46 |         12        0.47       15.09
+         47 |         16        0.62       15.72
+         48 |         24        0.94       16.65
+         49 |         18        0.70       17.36
+         50 |        222        8.66       26.01
+         51 |         17        0.66       26.68
+         52 |         46        1.79       28.47
+         53 |         32        1.25       29.72
+         54 |         17        0.66       30.38
+         55 |        228        8.89       39.27
+         56 |         30        1.17       40.44
+         57 |         33        1.29       41.73
+         58 |         71        2.77       44.50
+         59 |         34        1.33       45.83
+         60 |        293       11.43       57.25
+         61 |         28        1.09       58.35
+         62 |         88        3.43       61.78
+         63 |         58        2.26       64.04
+         64 |         47        1.83       65.87
+         65 |        186        7.25       73.13
+         66 |         41        1.60       74.73
+         67 |         45        1.76       76.48
+         68 |         63        2.46       78.94
+         69 |         31        1.21       80.15
+         70 |        126        4.91       85.06
+         71 |         26        1.01       86.08
+         72 |         34        1.33       87.40
+         73 |         19        0.74       88.14
+         74 |         28        1.09       89.24
+         75 |         50        1.95       91.19
+         76 |         18        0.70       91.89
+         77 |         13        0.51       92.39
+         78 |         12        0.47       92.86
+         79 |         13        0.51       93.37
+         80 |         26        1.01       94.38
+         81 |          5        0.20       94.58
+         82 |          4        0.16       94.73
+         83 |          6        0.23       94.97
+         84 |          3        0.12       95.09
+         85 |          3        0.12       95.20
+         86 |          3        0.12       95.32
+         87 |          2        0.08       95.40
+         88 |          3        0.12       95.51
+         89 |          1        0.04       95.55
+         90 |          2        0.08       95.63
+         98 |        108        4.21       99.84
+         99 |          4        0.16      100.00
+------------+-----------------------------------
+      Total |      2,564      100.00
+
+. drop if diabage3==98 | diabage3==99 | diabage3==.
+(112 observations deleted)
+
+. gen age_onset = .
+(2,452 missing values generated)
+
+. replace age_onset = 0 if diabage3<45
+(288 real changes made)
+
+. replace age_onset = 1 if diabage3>=45 & diabage3<=64
+(1,401 real changes made)
+
+. replace age_onset = 2 if diabage3>=65
+(763 real changes made)
+
+. tab age_onset, missing
+
+  age_onset |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          0 |        288       11.75       11.75
+          1 |      1,401       57.14       68.88
+          2 |        763       31.12      100.00
+------------+-----------------------------------
+      Total |      2,452      100.00
+
+. **************************************
+. ** Recreate Table 1: demographic summary        
+. **************************************
+. foreach var in sex race_eth education marstatus income hlthpln1 medcost  provider routine_checkup srh {
+  2.         display "Proportion `var'"
+  3.         svy: proportion `var' if rural==0
+  4.         svy: proportion `var' if rural==1
+  5. }
+Proportion sex
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata =   244          Number of obs   =      1,675
+Number of PSUs   = 1,675          Population size = 574,236.47
+                                  Design df       =      1,431
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+      sexvar |
+          1  |   .5118733   .0245059      .4638404     .559688
+          2  |   .4881267   .0245059       .440312    .5361596
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata = 153            Number of obs   =        777
+Number of PSUs   = 777            Population size = 139,928.12
+                                  Design df       =        624
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+      sexvar |
+          1  |   .5823194   .0347118      .5130072    .6485254
+          2  |   .4176806   .0347118      .3514746    .4869928
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+Proportion race_eth
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata =   244          Number of obs   =      1,675
+Number of PSUs   = 1,675          Population size = 574,236.47
+                                  Design df       =      1,431
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+    race_eth |
+          0  |   .7414013   .0211247      .6978603      .78064
+          1  |    .161529    .014769      .1346093    .1926337
+          2  |   .0688245   .0175465      .0414093    .1122645
+          3  |   .0282452   .0062102      .0183067    .0433409
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata = 153            Number of obs   =        777
+Number of PSUs   = 777            Population size = 139,928.12
+                                  Design df       =        624
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+    race_eth |
+          0  |   .8940834   .0166952      .8565512     .922682
+          1  |   .0456937    .009204      .0306639    .0675768
+          2  |   .0369107   .0130309      .0183159    .0729801
+          3  |   .0233122   .0071235      .0127476    .0422575
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+Proportion education
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata =   244          Number of obs   =      1,675
+Number of PSUs   = 1,675          Population size = 574,236.47
+                                  Design df       =      1,431
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+   education |
+          0  |   .2603293   .0170139      .2283624    .2950599
+          1  |   .0766808   .0201013      .0454228    .1265967
+          2  |   .6629899   .0219684      .6186394    .7046451
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata = 153            Number of obs   =        777
+Number of PSUs   = 777            Population size = 139,928.12
+                                  Design df       =        624
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+   education |
+          0  |   .2724892   .0355659      .2084409     .347576
+          1  |   .1158557   .0235419      .0770157    .1706614
+          2  |   .6116551    .038206      .5345478    .6835508
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+Proportion marstatus
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata =   244          Number of obs   =      1,675
+Number of PSUs   = 1,675          Population size = 574,236.47
+                                  Design df       =      1,431
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+   marstatus |
+          0  |    .593071   .0240791      .5451163    .6393153
+          1  |    .406929   .0240791      .3606847    .4548837
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata = 153            Number of obs   =        777
+Number of PSUs   = 777            Population size = 139,928.12
+                                  Design df       =        624
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+   marstatus |
+          0  |   .6290507   .0339678      .5602763    .6929633
+          1  |   .3709493   .0339678      .3070367    .4397237
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+Proportion income
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata =   244          Number of obs   =      1,675
+Number of PSUs   = 1,675          Population size = 574,236.47
+                                  Design df       =      1,431
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+      income |
+          0  |   .5936563   .0254666      .5428972    .6424906
+          1  |   .4063437   .0254666      .3575094    .4571028
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata = 153            Number of obs   =        777
+Number of PSUs   = 777            Population size = 139,928.12
+                                  Design df       =        624
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+      income |
+          0  |   .5486214   .0381439      .4731802    .6218919
+          1  |   .4513786   .0381439      .3781081    .5268198
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+Proportion hlthpln1
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata =   244          Number of obs   =      1,675
+Number of PSUs   = 1,675          Population size = 574,236.47
+                                  Design df       =      1,431
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+    hlthpln1 |
+          1  |   .9892814   .0050122      .9733455    .9957315
+          2  |   .0107186   .0050122      .0042685    .0266545
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata = 153            Number of obs   =        777
+Number of PSUs   = 777            Population size = 139,928.12
+                                  Design df       =        624
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+    hlthpln1 |
+          1  |   .9835895   .0155931      .8999079    .9975035
+          2  |   .0164105   .0155931      .0024965    .1000921
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+Proportion medcost
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata =   244          Number of obs   =      1,675
+Number of PSUs   = 1,675          Population size = 574,236.47
+                                  Design df       =      1,431
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+     medcost |
+          1  |   .0579288   .0113357      .0393042    .0846016
+          2  |   .9420712   .0113357      .9153984    .9606958
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata = 153            Number of obs   =        777
+Number of PSUs   = 777            Population size = 139,928.12
+                                  Design df       =        624
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+     medcost |
+          1  |   .0333721   .0136682      .0148008    .0735071
+          2  |   .9666279   .0136682      .9264929    .9851992
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+Proportion provider
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata =   244          Number of obs   =      1,675
+Number of PSUs   = 1,675          Population size = 574,236.47
+                                  Design df       =      1,431
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+    provider |
+          0  |   .9759432    .007671      .9553004    .9871808
+          1  |   .0240568    .007671      .0128192    .0446996
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata = 153            Number of obs   =        777
+Number of PSUs   = 777            Population size = 139,928.12
+                                  Design df       =        624
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+    provider |
+          0  |   .9856299   .0048546      .9722139    .9926174
+          1  |   .0143701   .0048546      .0073826    .0277861
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+Proportion routine_checkup
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata =   244             Number of obs   =      1,675
+Number of PSUs   = 1,675             Population size = 574,236.47
+                                     Design df       =      1,431
+
+-----------------------------------------------------------------
+                |             Linearized            Logit
+                | Proportion   std. err.     [95% conf. interval]
+----------------+------------------------------------------------
+routine_checkup |
+             0  |   .9910693   .0020771      .9859217    .9943455
+             1  |   .0089307   .0020771      .0056545    .0140783
+-----------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall mean.
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata = 153               Number of obs   =        777
+Number of PSUs   = 777               Population size = 139,928.12
+                                     Design df       =        624
+
+-----------------------------------------------------------------
+                |             Linearized            Logit
+                | Proportion   std. err.     [95% conf. interval]
+----------------+------------------------------------------------
+routine_checkup |
+             0  |   .9785868   .0069848      .9595934    .9887569
+             1  |   .0214132   .0069848      .0112431    .0404066
+-----------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall mean.
+Proportion srh
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata =   244          Number of obs   =      1,675
+Number of PSUs   = 1,675          Population size = 574,236.47
+                                  Design df       =      1,431
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+         srh |
+          0  |   .6751049   .0236003      .6272178    .7195906
+          1  |   .3248951   .0236003      .2804094    .3727822
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+(running proportion on estimation sample)
+
+Survey: Proportion estimation
+
+Number of strata = 153            Number of obs   =        777
+Number of PSUs   = 777            Population size = 139,928.12
+                                  Design df       =        624
+
+--------------------------------------------------------------
+             |             Linearized            Logit
+             | Proportion   std. err.     [95% conf. interval]
+-------------+------------------------------------------------
+         srh |
+          0  |   .6639966   .0339937      .5943416    .7271813
+          1  |   .3360034   .0339937      .2728187    .4056584
+--------------------------------------------------------------
+Note: Strata with single sampling unit centered at overall
+      mean.
+
+. 
+. **************************************
+. ** Recreate Table 3: multivariate reg           
+. **************************************
+. svy: logistic adequatecare rural ib2.sex i.race_eth i.education marstatus income srh i.age_onset insulin_
+> use i.bmi physact smoker ib2.hlthpln1 ib2.medcost provider routine_checkup
+(running logistic on estimation sample)
+
+Survey: Logistic regression
+
+Number of strata =   326                          Number of obs   =      2,386
+Number of PSUs   = 2,386                          Population size = 692,013.92
+                                                  Design df       =      2,060
+                                                  F(21, 2040)     =       4.34
+                                                  Prob > F        =     0.0000
+
+---------------------------------------------------------------------------------
+                |             Linearized
+   adequatecare | Odds ratio   std. err.      t    P>|t|     [95% conf. interval]
+----------------+----------------------------------------------------------------
+          rural |   1.181487   .2174133     0.91   0.365     .8235718    1.694947
+       1.sexvar |   1.218593    .214305     1.12   0.261     .8631295    1.720447
+                |
+       race_eth |
+             1  |   1.015084    .215416     0.07   0.944     .6695116    1.539026
+             2  |   .4230276   .1782755    -2.04   0.041     .1851135    .9667172
+             3  |   1.625531   .8519674     0.93   0.354      .581573    4.543455
+                |
+      education |
+             1  |   1.732254     .70207     1.36   0.175      .782389    3.835308
+             2  |   1.052917   .1837689     0.30   0.768     .7477289     1.48267
+                |
+      marstatus |   .8178872   .1550038    -1.06   0.289     .5640026    1.186057
+         income |   1.265766   .2515431     1.19   0.236     .8572286    1.869005
+            srh |   .7256625     .13213    -1.76   0.078     .5077562    1.037084
+                |
+      age_onset |
+             1  |   .8448901   .2360348    -0.60   0.546     .4884975    1.461296
+             2  |   1.504355   .4500943     1.36   0.172     .8366153    2.705046
+                |
+    insulin_use |   .2634533   .0546621    -6.43   0.000      .175384    .3957466
+                |
+            bmi |
+             1  |   .8253718   .1842719    -0.86   0.390     .5327203    1.278792
+             2  |    .743713   .1697609    -1.30   0.195     .4753295    1.163633
+                |
+        physact |   2.248626   1.595106     1.14   0.253     .5594306    9.038332
+         smoker |   1.113233   .3203209     0.37   0.709     .6331667    1.957286
+     1.hlthpln1 |   .7070354   .5507479    -0.45   0.656     .1534633    3.257449
+      1.medcost |   2.123611   .8267076     1.93   0.053     .9897219    4.556558
+       provider |   1.578827   .8446554     0.85   0.393     .5529469    4.508021
+routine_checkup |   2.559032   .9684669     2.48   0.013     1.218285    5.375301
+          _cons |    .852852   .7291857    -0.19   0.852     .1594672    4.561168
+---------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+Note: Strata with single sampling unit centered at overall mean.
+
+. 
+. svy: logistic adequatecare rural ib2.sex i.race_eth i.education marstatus income srh i.age_onset insulin_
+> use i.bmi physact smoker ib2.hlthpln1 ib2.medcost provider routine_checkup if rural==1
+(running logistic on estimation sample)
+
+note: 1.hlthpln1 != 1 predicts failure perfectly;
+      1.hlthpln1 omitted and 5 obs not used.
+note: rural omitted because of collinearity.
+
+Survey: Logistic regression
+
+Number of strata = 153                            Number of obs   =        748
+Number of PSUs   = 748                            Population size = 133,747.38
+                                                  Design df       =        595
+                                                  F(19, 577)      =       2.81
+                                                  Prob > F        =     0.0001
+
+---------------------------------------------------------------------------------
+                |             Linearized
+   adequatecare | Odds ratio   std. err.      t    P>|t|     [95% conf. interval]
+----------------+----------------------------------------------------------------
+          rural |          1  (omitted)
+       1.sexvar |   1.078451    .329638     0.25   0.805     .5916884    1.965658
+                |
+       race_eth |
+             1  |   .6575052   .2894711    -0.95   0.341     .2769415    1.561026
+             2  |   .4412032   .4615316    -0.78   0.434     .0565461    3.442502
+             3  |   .4770689    .404175    -0.87   0.383     .0903585    2.518795
+                |
+      education |
+             1  |   .9447174   .6432993    -0.08   0.933     .2480277    3.598352
+             2  |   .9253624   .3070436    -0.23   0.815     .4822806    1.775513
+                |
+      marstatus |   .9076557   .2989381    -0.29   0.769     .4753406    1.733155
+         income |   1.162241   .4437054     0.39   0.694     .5491273     2.45991
+            srh |   .4388806   .1463731    -2.47   0.014      .227971    .8449152
+                |
+      age_onset |
+             1  |   .2206068   .1149509    -2.90   0.004     .0792833    .6138411
+             2  |    .726246   .4106291    -0.57   0.572     .2392336    2.204679
+                |
+    insulin_use |   .2072597   .0863048    -3.78   0.000     .0914838    .4695538
+                |
+            bmi |
+             1  |   2.010477   .8771878     1.60   0.110     .8534061    4.736335
+             2  |    1.39448   .6340562     0.73   0.465     .5709403    3.405917
+                |
+        physact |    .809027   .7353392    -0.23   0.816     .1357418    4.821835
+         smoker |   .7208121   .3874385    -0.61   0.543     .2508224    2.071466
+                |
+       hlthpln1 |
+             1  |          1  (omitted)
+             2  |          1  (empty)
+                |
+      1.medcost |   .8355565   .5105752    -0.29   0.769     .2516404    2.774414
+       provider |   5.907786   4.158617     2.52   0.012     1.482602    23.54101
+routine_checkup |   7.281949   5.054714     2.86   0.004     1.862892    28.46476
+          _cons |   1.615336   1.198318     0.65   0.518     .3762892     6.93432
+---------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+Note: Strata with single sampling unit centered at overall mean.
+
+. 
+. svy: logistic adequatecare rural ib2.sex i.race_eth i.education marstatus income srh i.age_onset insulin_
+> use i.bmi physact smoker ib2.hlthpln1 ib2.medcost provider routine_checkup if rural==0
+(running logistic on estimation sample)
+
+note: rural omitted because of collinearity.
+
+Survey: Logistic regression
+
+Number of strata =   243                          Number of obs   =      1,633
+Number of PSUs   = 1,633                          Population size = 555,970.25
+                                                  Design df       =      1,390
+                                                  F(20, 1371)     =       3.63
+                                                  Prob > F        =     0.0000
+
+---------------------------------------------------------------------------------
+                |             Linearized
+   adequatecare | Odds ratio   std. err.      t    P>|t|     [95% conf. interval]
+----------------+----------------------------------------------------------------
+          rural |          1  (omitted)
+       1.sexvar |   1.281216   .2657976     1.19   0.232     .8528655    1.924705
+                |
+       race_eth |
+             1  |   1.008419   .2287474     0.04   0.971     .6462318    1.573598
+             2  |   .3991887   .1872122    -1.96   0.050     .1590862    1.001668
+             3  |   2.068276   1.160117     1.30   0.195     .6882476    6.215445
+                |
+      education |
+             1  |     2.0768    1.03467     1.47   0.143      .781543    5.518695
+             2  |   1.155823   .2220549     0.75   0.451     .7928982    1.684866
+                |
+      marstatus |   .8968929   .2006888    -0.49   0.627     .5782421    1.391142
+         income |   1.284619   .2912092     1.10   0.269     .8234706    2.004014
+            srh |   .7770862   .1639543    -1.20   0.232     .5137136    1.175486
+                |
+      age_onset |
+             1  |   1.199954   .3407106     0.64   0.521     .6874907    2.094413
+             2  |    1.78016   .5435217     1.89   0.059     .9780078    3.240231
+                |
+    insulin_use |   .2937817   .0651004    -5.53   0.000     .1902124    .4537437
+                |
+            bmi |
+             1  |   .6971097   .1791608    -1.40   0.161     .4210632    1.154131
+             2  |   .6610939   .1701761    -1.61   0.108     .3989876    1.095385
+                |
+        physact |   2.296884    1.87539     1.02   0.309     .4629491     11.3958
+         smoker |   1.293144   .4391854     0.76   0.449     .6642086    2.517613
+     1.hlthpln1 |   .2269544   .1652947    -2.04   0.042     .0543819    .9471599
+      1.medcost |   2.124874   .9149384     1.75   0.080     .9130603    4.945008
+       provider |   1.261108   .7675434     0.38   0.703     .3821529    4.161667
+routine_checkup |   1.511432   .6700087     0.93   0.352     .6334715    3.606201
+          _cons |   1.924991   1.540436     0.82   0.413     .4005695    9.250806
+---------------------------------------------------------------------------------
+Note: _cons estimates baseline odds.
+Note: Strata with single sampling unit centered at overall mean.
+
+. 
+. log close
+      name:  <unnamed>
+       log:  C:\Users\eshak\OneDrive\Documents\23 Fall\Large Scale Data\finalproject2019.log
+  log type:  text
+ closed on:   6 Dec 2023, 16:34:05
+-----------------------------------------------------------------------------------------------------------
